@@ -1,18 +1,27 @@
 package com.mygdx.game;
 
+import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
+
 import java.util.ArrayList;
+
 public class RuvikEngine {
     private Texture texture;
-    private  ArrayList<Body> bodyArray = new ArrayList<>();
+    private Camera camera;
+    private ArrayList<Body> bodyArray = new ArrayList<>();
     float mass = 1;
-    public RuvikEngine(){
-        texture= new Texture("dot.png");
+
+    public RuvikEngine(Camera camera) {
+        this.camera = camera;
+        texture = new Texture("dot.png");
         bodyArray.add(new Body(new Vector2(1920 / 2, 1080 / 2), new Vector2(0, 0), 1000));
     }
+
     public void update(float deltaTime) {
         ArrayList<Vector2> forceArr = new ArrayList<>();
         for (int i = 0; i < bodyArray.size(); i++) {
@@ -38,17 +47,39 @@ public class RuvikEngine {
 
 
     }
-    public void addBody(Body body){bodyArray.add(body);}
-    public void clearBodyArray(){bodyArray.clear();};
-    public void draw(ShapeRenderer shapeRenderer, Batch batch){
+
+    public void addBody(Body body) {
+        bodyArray.add(body);
+    }
+
+    public void clearBodyArray() {
+        bodyArray.clear();
+    }
+
+    public void draw(ShapeRenderer shapeRenderer, SpriteBatch batch) {
+        batch.setProjectionMatrix(camera.combined);
+        shapeRenderer.setProjectionMatrix(camera.combined);
+        batch.begin();
+
         for (Body body : bodyArray
         ) {
             batch.draw(texture, body.position.x, body.position.y);
+        }
+        batch.end();
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(Color.BLACK);
+        for (Body body : bodyArray
+        ) {
             for (Vector2 point : body.trail
             ) {
                 shapeRenderer.circle(point.x, point.y, 1);
 
             }
         }
+        shapeRenderer.end();
+    }
+
+    public void dispose() {
+        //clean up
     }
 }
